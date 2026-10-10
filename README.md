@@ -4,7 +4,7 @@
 
 > **Durum:** Proje artık güncellenmiyor. Bu depodaki sürüm 38’dir; son güncelleme tarihi 09/08/2021’dir.
 
-Linux sunucularda SSH ve VPN bağlantılarını yönetmek için kullanılan bir araçtır. Orijinal geliştirici: [@crazy_vpn](https://t.me/crazy_vpn).
+Linux sunucularda SSH ve VPN bağlantılarını yönetmek için kullanılan bir araçtır. Orijinal geliştirici: [@requmen](https://t.me/teknoadam).
 
 ## Gereksinimler
 
