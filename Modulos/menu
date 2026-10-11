@@ -394,8 +394,7 @@ _ui_draw_options () {
 _ui_draw_dashboard () {
    local _mode="$1"
    _ui_init
-   clear
-   printf '\033[3J'
+   printf '\033[H\033[2J\033[3J'
    _ui_banner 'SSHPLUS MANAGER'
    printf '\n'
    _ui_heading 'SİSTEM DURUMU'
