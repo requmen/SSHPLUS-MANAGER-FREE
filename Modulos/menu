@@ -365,9 +365,29 @@ _ui_compact_menu_pair () {
    fi
    printf '\n'
 }
+_ui_compact_framed_menu_pair () {
+   local _left_width="${11}" _right_width="${12}" _plain _pad
+   _plain=$(_ui_compact_plain_item "$1" "$2" "$4" "$5")
+   _pad=$((_left_width - ${#_plain}))
+   (( _pad < 0 )) && _pad=0
+   printf ' \033[38;5;39m│\033[0m'
+   _ui_compact_menu_item "$1" "$2" "$3" "$4" "$5"
+   printf '%*s\033[38;5;39m│\033[0m' "$_pad" ''
+   if [[ -n "$6" ]]; then
+      _plain=$(_ui_compact_plain_item "$6" "$7" "$9" "${10}")
+      _pad=$((_right_width - ${#_plain}))
+      (( _pad < 0 )) && _pad=0
+      _ui_compact_menu_item "$6" "$7" "$8" "$9" "${10}"
+      printf '%*s' "$_pad" ''
+   else
+      printf '%*s' "$_right_width" ''
+   fi
+   printf '\033[38;5;39m│\033[0m\n'
+}
 _ui_draw_options () {
    local _mode="$1" _count _i _lines _menu_title _split _plain _left_width
-   local -a _nums _labels _colors _prefixes _suffixes
+   local _right_width
+   local -a _nums _labels _colors _prefixes _suffixes _display_labels
    if [[ "$_mode" == 'main' ]]; then
       _nums=(01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 00)
       _labels=('KULLANICI OLUŞTUR' 'DENEME HESABI OLUŞTUR' 'KULLANICIYI KALDIR' 'ÇEVRİMİÇİ TAKİP' 'TARİHİ DEĞİŞTİR' 'LİMİTİ DEĞİŞTİR' 'ŞİFREYİ DEĞİŞTİR' 'SÜRESİ DOLANLARI KALDIR' 'KULLANICI RAPORU' 'BAĞLANTI MODU' 'HIZ TESTİ' 'GİRİŞ MESAJI' 'TRAFİK' 'İYİLEŞTİR' 'YEDEKLEME' 'HIZ SINIRLAYICI' 'VPN GEÇİDİ' 'VPS BİLGİSİ' 'DAHA FAZLA' 'ÇIKIŞ')
@@ -386,6 +406,20 @@ _ui_draw_options () {
    if [[ "$2" == 'compact' ]]; then
       printf '  \033[1;38;5;45m%s\033[0m\n' "$_menu_title"
       if [[ "$_mode" == 'main' ]]; then
+         if (( _term_cols < 70 )); then
+            _display_labels=("${_labels[@]}")
+            _display_labels[1]='DENEME HESABI AÇ'
+            _display_labels[7]='SÜRESİ DOLANLARI SİL'
+            _left_width=$((_frame_inner / 2))
+            _right_width=$((_frame_inner - _left_width - 1))
+            _ui_frame_top
+            for ((_i=0; _i<10; _i++)); do
+               _ui_compact_framed_menu_pair "${_nums[$_i]}" "${_display_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
+                  "${_nums[$((_i + 10))]}" "${_display_labels[$((_i + 10))]}" "${_colors[$((_i + 10))]}" "${_prefixes[$((_i + 10))]}" "${_suffixes[$((_i + 10))]}" "$_left_width" "$_right_width"
+            done
+            _ui_frame_bottom
+            return
+         fi
          _left_width=0
          for ((_i=0; _i<_count; _i+=2)); do
             _plain=$(_ui_compact_plain_item "${_nums[$_i]}" "${_labels[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}")
@@ -457,7 +491,9 @@ _ui_draw_compact_dashboard () {
    printf '  \033[38;5;43m≡ RAM:\033[0m \033[1;37m%s (%s)\033[0m  \033[38;5;43m■ CPU:\033[0m \033[1;37m%s çek. (%s)\033[0m\n' "${_ram// /}" "${_usor// /}" "$_core" "${_usop// /}"
    printf '  \033[1;38;5;45mKULLANICI DURUMU\033[0m\n'
    printf '  \033[38;5;43mÇevrimiçi:\033[0m %s  ·  \033[38;5;203mSüresi dolan:\033[0m %s  ·  \033[38;5;221mToplam:\033[0m %s\n' "${_onlin// /}" "${_userexp// /}" "$_tuser"
-   printf '\n'
+   if [[ "$_mode" != 'main' ]] || (( _term_cols >= 70 )); then
+      printf '\n'
+   fi
    _ui_draw_options "$_mode" compact
    printf '\n  \033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
    read x
