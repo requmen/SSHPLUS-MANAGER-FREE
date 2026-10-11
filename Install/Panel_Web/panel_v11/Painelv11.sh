@@ -91,7 +91,7 @@ sed -i "s;suasenha;$senha;g" /var/www/html/pages/system/pass.php > /dev/null 2>&
 fi
 sleep 1
 cd
-wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11/sshplus.sql > /dev/null 2>&1
+wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11/sshplus.sql > /dev/null 2>&1
 sleep 1
 if [[ -e "$HOME/sshplus.sql" ]]; then
     mysql -h localhost -u root -p$senha --default_character_set utf8 sshplus < sshplus.sql

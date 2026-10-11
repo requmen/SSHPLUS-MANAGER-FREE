@@ -2,7 +2,7 @@
 
 barra="\033[0m\e[34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 MIP_CMD="/bin/mip"
-SSHPLUS_SCRIPT="https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master"
+SSHPLUS_SCRIPT="https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master"
 
 # Crear acceso rápido si no existe
 [[ ! -e $MIP_CMD ]] && echo "/root/sshplus.sh" > $MIP_CMD && chmod +x $MIP_CMD
@@ -81,7 +81,7 @@ atualizar() {
   fun_att() {
     service ssh restart
     rm -f $HOME/sshplus.sh /bin/mip
-    wget "$SSHPLUS_SCRIPT/Install/Multi-Instalador/sshplus.sh" -O /root/sshplus.sh
+    wget "$SSHPLUS_SCRIPT/Install/multi_instalador.sh" -O /root/sshplus.sh
   }
 
   fun_bar fun_att

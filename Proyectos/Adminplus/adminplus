@@ -69,13 +69,13 @@ menu () {
             3)
                 echo -e "\n${yellow}Cargando archivo de creditos...${reset}"
                 rm -rf "$HOME/credits"* > /dev/null 2>&1
-                wget -qO "$HOME/credits" https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/credits > /dev/null 2>&1
+                wget -qO "$HOME/credits" https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/credits > /dev/null 2>&1
                 echo -e "${green}Versión configurada.${reset}"
                 echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar al \033[1;32mMENU!\033[0m"; read
                 ;;
             4)
                 echo -e "\n${yellow}Reinstalando SSH Plus...${reset}"
-                # echo 'wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus; ./Plus' > /bin/sshplus
+                # echo 'wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus; ./Plus' > /bin/sshplus
                 chmod +x /bin/sshplus > /dev/null 2>&1
                 /bin/sshplus
                 echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar al \033[1;32mMENU!\033[0m"; read

@@ -9,11 +9,11 @@ Este proyecto ha sido descontinuado y ya no recibirá actualizaciones o soporte 
 
 Si tienes alguna pregunta o necesitas ayuda, te sugerimos revisar los foros de la comunidad o explorar otros repositorios en GitHub con herramientas similares. También puedes abrir un *issue* o enviar un *pull request* si deseas colaborar directamente.
 
-* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
+* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
 
 ----
 
-![logo](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/SSHPLUS_MANAGER.png)
+![logo](https://github.com/requmen/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/SSHPLUS_MANAGER.png)
 
 # SSHPlus Manager :octocat:
 
@@ -32,13 +32,13 @@ Autor original: [@crazy_vpn](https://t.me/crazy_vpn)
 ```bash
 apt-get update -y; 
 apt-get upgrade -y; 
-wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Plus; 
+wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus;
 chmod +x Plus* && ./Plus
 ```
 
 ## :computer: Instalación en una Línea (Solo script)
 ```bash
-wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
+wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
 ```
 
 :memo: Las dependencias faltantes se instalarán automáticamente durante el proceso.
@@ -77,11 +77,11 @@ SSHPlus Manager ofrece las siguientes características:
 
 ## :books: Utilidad Opcional (Menu de Administración)
 
-![logo](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/adminplus.png)
+![logo](https://github.com/requmen/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/adminplus.png)
 
 ## :computer: Instalación
 ```bash
-wget -qO "/bin/adminplus" https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Adminplus/adminplus; chmod +x /bin/adminplus
+wget -qO "/bin/adminplus" https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Adminplus/adminplus; chmod +x /bin/adminplus
 ```
 
 ## :rocket: Modo de Uso
@@ -96,17 +96,17 @@ adminplus
 
 **Principal**
 
-- AdminPlus – Menú de Administración: [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/Adminplus)
-- SSHPlus Keygen: [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/SSHPlus_Keygen)
-- Painel Revenda SSH (Versión 20): [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/Panel_v20)
-- SSHPlus Bash Obfuscador Web: [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/SSHPlus_Bash_Obfuscador_%26_Desofuscador)
+- AdminPlus – Menú de Administración: [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/Adminplus)
+- SSHPlus Keygen: [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/SSHPlus_Keygen)
+- Painel Revenda SSH (Versión 20): [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/Panel_v20)
+- SSHPlus Bash Obfuscador Web: [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Proyectos/SSHPlus_Bash_Obfuscador_%26_Desofuscador)
 
 **Extras**
 
-- Painel Revenda SSH (Versiónes): [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Install/Panel_Web)
-- SSHPlus Skin (Apariencia): [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Install/Skin_Plus)
-- Tcp-Tweaker-1.0 (Tcp-Speed): [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Install/TCP-Speed)
-- Actualización de Repositorios APT para Ubuntu: [Ver Repositorio](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/tree/master/Install/Sources_list)
+- Painel Revenda SSH (Versiónes): [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Install/Panel_Web)
+- SSHPlus Skin (Apariencia): [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Install/Skin_Plus)
+- Tcp-Tweaker-1.0 (Tcp-Speed): [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Install/TCP-Speed)
+- Actualización de Repositorios APT para Ubuntu: [Ver Repositorio](https://github.com/requmen/SSHPLUS-MANAGER-FREE/tree/master/Install/Sources_list)
 
 
 ## :open_file_folder: Estructura del Repositorio
