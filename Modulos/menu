@@ -331,7 +331,7 @@ _ui_mobile_menu_pair () {
    printf '\033[38;5;39m│\033[0m\n'
 }
 _ui_draw_options () {
-   local _mode="$1" _count _i _lines _menu_title
+   local _mode="$1" _count _i _lines _menu_title _split
    local -a _nums _labels _colors _prefixes _suffixes
    if [[ "$_mode" == 'main' ]]; then
       _nums=(01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 00)
@@ -355,7 +355,13 @@ _ui_draw_options () {
       _ui_frame_top
    fi
    _lines=$_term_lines
-   if (( _term_cols >= 110 && _lines >= _count + 18 )); then
+   if [[ "$_mode" == 'main' ]] && (( _term_cols >= 94 )); then
+      _split=$((_count / 2))
+      for ((_i=0; _i<_split; _i++)); do
+         _ui_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
+            "${_nums[$((_i + _split))]}" "${_labels[$((_i + _split))]}" "${_colors[$((_i + _split))]}" "${_prefixes[$((_i + _split))]}" "${_suffixes[$((_i + _split))]}"
+      done
+   elif (( _term_cols >= 110 && _lines >= _count + 18 )); then
       for ((_i=0; _i<_count; _i++)); do
          _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
       done
