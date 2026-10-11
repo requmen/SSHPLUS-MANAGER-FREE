@@ -341,7 +341,6 @@ _draw_frame_top
 _draw_frame_blank () {
    printf ' \033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
 }
-_draw_frame_blank
 _draw_menu_row '01' 'KULLANICILARI YÖNET' '38;5;221'
 _draw_menu_row '02' 'ARAÇLARI YÖNET' '38;5;221'
 _draw_menu_row '03' 'SİSTEMİ YÖNET' '38;5;221'
