@@ -12,17 +12,12 @@ Linux sunucularda SSH ve VPN bağlantılarını yönetmek için kullanılan bir 
 - Kurulum için root yetkisi
 
 ## Kurulum
-
-Eksik bağımlılıklar kurulum sırasında otomatik olarak yüklenir.
-
-Python uyumluluğu için gerekli paket:
-```bash
-sudo apt install python-is-python3 -y
-```
+Kurulum komutlarını aşağıdaki sırayla çalıştırın:
 
 ```bash
 apt-get update -y;
 apt-get upgrade -y;
+sudo apt install python-is-python3 -y
 wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus;
 chmod +x Plus* && ./Plus
 ```
@@ -30,7 +25,7 @@ chmod +x Plus* && ./Plus
 Güncelleme adımlarını atlamak için tek satırlık kurulum:
 
 ```bash
-wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
+sudo apt install python-is-python3 -y; wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
 ```
 
 Kurulumdan sonra ana menüyü açmak için:
