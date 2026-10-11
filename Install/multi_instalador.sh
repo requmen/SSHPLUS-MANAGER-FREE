@@ -2,7 +2,7 @@
 
 barra="\033[0m\e[34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 MIP_CMD="/bin/mip"
-SSHPLUS_SCRIPT="https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master"
+SSHPLUS_SCRIPT="https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master"
 
 # Crear acceso rápido si no existe
 [[ ! -e $MIP_CMD ]] && echo "/root/sshplus.sh" > $MIP_CMD && chmod +x $MIP_CMD
@@ -65,7 +65,7 @@ panelwebversiones() {
 
 keyssh() {
   apt-get update -y && apt-get upgrade -y
-  wget "$SSHPLUS_SCRIPT/Install/Generador/instgerador.sh" -O instgerador.sh && chmod +x instgerador.sh && ./instgerador.sh
+  wget "$SSHPLUS_SCRIPT/Proyectos/SSHPlus_Keygen/instgerador.sh" -O instgerador.sh && chmod +x instgerador.sh && ./instgerador.sh
 }
 
 fun_tcpspeed() {

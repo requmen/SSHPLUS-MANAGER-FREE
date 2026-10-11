@@ -20,19 +20,19 @@ sshplusvipvps () {
 ##PAINEL WEB SCRIPTS
 
 panel_v15 () {
-    wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11/Painelv11.sh > /dev/null 2>&1; chmod +x Painelv11.sh; ./Painelv11.sh
+    wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11/Painelv11.sh > /dev/null 2>&1; chmod +x Painelv11.sh; ./Painelv11.sh
 }
 panel_v23 () {
-    wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11_2/install > /dev/null 2>&1; chmod +x install; ./install
+    wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v11_2/install > /dev/null 2>&1; chmod +x install; ./install
 }
 panel_v25 () {
-    wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v12/install > /dev/null 2>&1; chmod +x install; ./install
+    wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web/panel_v12/install > /dev/null 2>&1; chmod +x install; ./install
 }
 
 ##OPCIONES DE SISTEMA
 
 atualizar () {
-    rm -rf $HOME/sshplus.sh; wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Multi-Instalador/sshplus.sh; chmod +x sshplus.sh; ./sshplus.sh
+    rm -rf $HOME/sshplus.sh; wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/multi_instalador.sh; chmod +x sshplus.sh; ./sshplus.sh
 }
 remove_multiscripts () {
     rm -rf $HOME/vipvps.sh && rm -rf /bin/vipvps

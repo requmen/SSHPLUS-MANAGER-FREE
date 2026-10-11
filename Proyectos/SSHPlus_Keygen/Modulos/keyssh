@@ -432,7 +432,7 @@ actualiza_plus () {
   if [[ "$resp" =~ ^[sS]$ ]]; then
     echo -e "\033[1;32mActualizando...\033[0m"
     rm -f "$HOME"/instgerador.sh* > /dev/null 2>&1
-    wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/SSHPlus_Keygen/instgerador.sh
+    wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/SSHPlus_Keygen/instgerador.sh
     chmod +x instgerador.sh*
     ./instgerador.sh*
   else
