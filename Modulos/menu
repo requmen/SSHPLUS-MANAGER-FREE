@@ -174,6 +174,15 @@ _ui_three_card_row () {
    done
    printf '\n'
 }
+_ui_mobile_system_stats () {
+   _card_width=$(((_frame_inner - 2) / 3))
+   _ui_three_card_border
+   _ui_three_card_headings
+   _ui_three_card_separator
+   _ui_three_card_row 'OS:' "$system" 'Toplam:' "${_ram// /}" 'Çek.:' "$_core"
+   _ui_three_card_row 'Saat' "$_hora" 'Kull.' "${_usor// /}" 'Kull.' "${_usop// /}"
+   _ui_three_card_bottom
+}
 _ui_user_cell () {
    local _icon="$1" _label="$2" _value="$3" _color="$4" _width="$5" _used _pad
    _used=$((2 + ${#_icon} + 1 + ${#_label} + 1 + ${#_value}))
@@ -211,6 +220,36 @@ _ui_user_stats () {
       done
    fi
    _ui_frame_bottom
+}
+_ui_mobile_user_stats () {
+   local _i _label _value _pad _width
+   local -a _labels=('Çevrimiçi' 'Süresi dolan' 'Toplam')
+   local -a _values=("${_onlin// /}" "${_userexp// /}" "$_tuser")
+   local -a _colors=('38;5;43' '38;5;203' '38;5;221')
+   _card_width=$(((_frame_inner - 2) / 3))
+   _ui_three_card_border
+   printf ' '
+   for _i in 0 1 2; do
+      _label="${_labels[$_i]}"
+      _width=$((_card_width + (_i > 0 ? 1 : 0)))
+      _pad=$((_width - 2 - ${#_label}))
+      (( _pad < 0 )) && _pad=0
+      printf '\033[38;5;39m│\033[0m%*s\033[%sm%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "${_colors[$_i]}" "$_label" "$((_pad - _pad / 2))" ''
+      [[ $_i -lt 2 ]] && printf ' '
+   done
+   printf '\n'
+   _ui_three_card_separator
+   printf ' '
+   for _i in 0 1 2; do
+      _value="${_values[$_i]}"
+      _width=$((_card_width + (_i > 0 ? 1 : 0)))
+      _pad=$((_width - 2 - ${#_value}))
+      (( _pad < 0 )) && _pad=0
+      printf '\033[38;5;39m│\033[0m%*s\033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_value" "$((_pad - _pad / 2))" ''
+      [[ $_i -lt 2 ]] && printf ' '
+   done
+   printf '\n'
+   _ui_three_card_bottom
 }
 _ui_plain_item () {
    local _marker='•' _suffix
@@ -254,6 +293,43 @@ _ui_menu_pair () {
    fi
    printf '\033[38;5;39m│\033[0m\n'
 }
+_ui_mobile_menu_pair () {
+   local _num1="$1" _label1="$2" _color1="$3" _pre1="$4" _suf1="$5"
+   local _num2="$6" _label2="$7" _color2="$8" _pre2="$9" _suf2="${10}"
+   local _left_width=$((_frame_inner / 2)) _right_width=$((_frame_inner - _frame_inner / 2 - 1))
+   local _plain _pad _pre_plain _suf_plain _suf_render
+   _pre_plain=$(printf '%b' "$_pre1" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
+   _suf_plain=$(printf '%b' "$_suf1" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
+   _plain=" [${_num1}] • ${_pre_plain}${_label1}"
+   [[ -n "$_suf_plain" ]] && _plain+=" $_suf_plain"
+   _pad=$((_left_width - ${#_plain}))
+   (( _pad < 0 )) && _pad=0
+   printf ' \033[38;5;39m│\033[0m \033[38;5;203m[%s]\033[0m \033[1;37m•\033[0m ' "$_num1"
+   printf '%b\033[%sm%s\033[0m' "$_pre1" "$_color1" "$_label1"
+   if [[ -n "$_suf1" ]]; then
+      _suf_render=$(printf '%b' "$_suf1" | sed -E 's/^[[:space:]]+//')
+      printf ' %b' "$_suf_render"
+   fi
+   printf '%*s\033[38;5;39m│\033[0m' "$_pad" ''
+   if [[ -n "$_num2" ]]; then
+      _pre_plain=$(printf '%b' "$_pre2" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
+      _suf_plain=$(printf '%b' "$_suf2" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
+      _plain=" [${_num2}] • ${_pre_plain}${_label2}"
+      [[ -n "$_suf_plain" ]] && _plain+=" $_suf_plain"
+      _pad=$((_right_width - ${#_plain}))
+      (( _pad < 0 )) && _pad=0
+      printf ' \033[38;5;203m[%s]\033[0m \033[1;37m•\033[0m ' "$_num2"
+      printf '%b\033[%sm%s\033[0m' "$_pre2" "$_color2" "$_label2"
+      if [[ -n "$_suf2" ]]; then
+         _suf_render=$(printf '%b' "$_suf2" | sed -E 's/^[[:space:]]+//')
+         printf ' %b' "$_suf_render"
+      fi
+      printf '%*s' "$_pad" ''
+   else
+      printf '%*s' "$_right_width" ''
+   fi
+   printf '\033[38;5;39m│\033[0m\n'
+}
 _ui_draw_options () {
    local _mode="$1" _count _i _lines _menu_title
    local -a _nums _labels _colors _prefixes _suffixes
@@ -289,9 +365,19 @@ _ui_draw_options () {
             "${_nums[$((_i + 1))]:-}" "${_labels[$((_i + 1))]:-}" "${_colors[$((_i + 1))]:-38;5;221}" "${_prefixes[$((_i + 1))]:-}" "${_suffixes[$((_i + 1))]:-}"
       done
    else
-      for ((_i=0; _i<_count; _i++)); do
-         _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
-      done
+      if [[ "$_mode" == 'main' ]] && (( _count > 10 )); then
+         for ((_i=0; _i<10; _i++)); do
+            _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
+         done
+         for ((_i=10; _i<_count; _i+=2)); do
+            _ui_mobile_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
+               "${_nums[$((_i + 1))]:-}" "${_labels[$((_i + 1))]:-}" "${_colors[$((_i + 1))]:-38;5;221}" "${_prefixes[$((_i + 1))]:-}" "${_suffixes[$((_i + 1))]:-}"
+         done
+      else
+         for ((_i=0; _i<_count; _i++)); do
+            _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
+         done
+      fi
    fi
    if (( _term_cols >= 94 || _term_cols < 80 )); then
       printf ' \033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
@@ -305,7 +391,7 @@ _ui_draw_dashboard () {
    clear
    printf '\033[3J'
    _ui_banner 'SSHPLUS MANAGER'
-   (( _term_cols >= 94 || _term_cols < 80 )) && printf '\n'
+   printf '\n'
    _ui_heading 'SİSTEM DURUMU'
    if (( _term_cols >= 94 )); then
       _card_width=$(((_frame_inner - 2) / 3))
@@ -315,17 +401,17 @@ _ui_draw_dashboard () {
       _ui_three_card_row 'İşletim sistemi:' "$system" 'Toplam:' "${_ram// /}" 'Çekirdek:' "$_core"
       _ui_three_card_row 'Saat:' "$_hora" 'RAM kullanımı:' "${_usor// /}" 'CPU kullanımı:' "${_usop// /}"
       _ui_three_card_bottom
-   elif (( _term_cols >= 80 )); then
-      _ui_compact_stats
    else
-      _ui_full_stat_card '■ SİSTEM' 'İşletim sistemi:' "$system" 'Saat:' "$_hora"
-      _ui_full_stat_card '≡ RAM' 'Toplam:' "${_ram// /}" 'RAM kullanımı:' "${_usor// /}"
-      _ui_full_stat_card '■ İŞLEMCİ' 'Çekirdek:' "$_core" 'CPU kullanımı:' "${_usop// /}"
+      _ui_mobile_system_stats
    fi
-   (( _term_cols >= 94 || _term_cols < 80 )) && printf '\n'
-   (( _term_cols >= 94 || _term_cols < 80 )) && _ui_heading 'KULLANICI DURUMU'
-   _ui_user_stats
-   (( _term_cols >= 94 || _term_cols < 80 )) && printf '\n'
+   printf '\n'
+   _ui_heading 'KULLANICI DURUMU'
+   if (( _term_cols >= 94 )); then
+      _ui_user_stats
+   else
+      _ui_mobile_user_stats
+   fi
+   printf '\n'
    _ui_draw_options "$_mode"
    if (( _term_cols >= 94 || _term_cols < 80 )); then
       printf '\n  \033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
