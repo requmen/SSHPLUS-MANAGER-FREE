@@ -25,7 +25,7 @@ chmod +x Plus* && ./Plus
 Güncelleme adımlarını atlamak için tek satırlık kurulum:
 
 ```bash
-sudo apt install python-is-python3 -y; wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
+wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Plus; chmod +x Plus* && ./Plus
 ```
 
 Kurulumdan sonra ana menüyü açmak için:
