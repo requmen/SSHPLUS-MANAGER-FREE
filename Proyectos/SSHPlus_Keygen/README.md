@@ -9,11 +9,11 @@ Este proyecto ha sido descontinuado y ya no recibirá actualizaciones o soporte 
 
 Si tienes alguna pregunta o necesitas ayuda, te sugerimos revisar los foros de la comunidad o explorar otros repositorios en GitHub con herramientas similares. También puedes abrir un *issue* o enviar un *pull request* si deseas colaborar directamente.
 
-* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
+* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
 
 ----
 
-![logo](https://github.com/requmen/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/SSHPlus_Keygen.png)
+![logo](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/SSHPlus_Keygen.png)
 
 # SSHPlus Keygen :octocat:
 
@@ -22,7 +22,7 @@ SSHPlus Keygen es un script diseñado para generar claves de instalación person
 
 ## :computer: Instalación
 ```bash
-wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/SSHPlus_Keygen/instgerador.sh; chmod +x instgerador.sh* && ./instgerador.sh
+wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/SSHPlus_Keygen/instgerador.sh; chmod +x instgerador.sh* && ./instgerador.sh
 ```
 
 :memo: El Keygen trabaja con Apache2 en el Puerto 80.

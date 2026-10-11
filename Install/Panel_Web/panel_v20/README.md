@@ -9,11 +9,11 @@ Este proyecto ha sido descontinuado y ya no recibirá actualizaciones o soporte 
 
 Si tienes alguna pregunta o necesitas ayuda, te sugerimos revisar los foros de la comunidad o explorar otros repositorios en GitHub con herramientas similares. También puedes abrir un *issue* o enviar un *pull request* si deseas colaborar directamente.
 
-* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
+* :inbox_tray: Código Fuente: [Descargar](https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Source-Code-SSHPlus.zip)
 
 ----
 
-![logo](https://github.com/requmen/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/photo_2021-10-13_22-35-39.jpg)
+![logo](https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/blob/master/Imagenes/photo_2021-10-13_22-35-39.jpg)
 
 # Painel Revenda SSH
 
@@ -27,13 +27,13 @@ navegador...
 ```bash
 apt-get update -y; 
 apt-get full-upgrade -y; 
-wget wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Panel_v20/install; 
+wget wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Panel_v20/install; 
 chmod +x install* && ./install
 ```
 
 ## :computer: Instalación en una Línea
 ```bash
-apt-get update -y; apt-get full-upgrade -y; wget wget https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Panel_v20/install; 
+apt-get update -y; apt-get full-upgrade -y; wget wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/refs/heads/master/Proyectos/Panel_v20/install; 
 chmod +x install* && ./install
 ```
 

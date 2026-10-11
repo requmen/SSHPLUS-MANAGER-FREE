@@ -1,7 +1,7 @@
 #!/bin/bash
 
 barra="\033[0m\e[34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-SCRIPT_URL_BASE="https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web"
+SCRIPT_URL_BASE="https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/Panel_Web"
 SCRIPT_TEMP="/tmp/painel_installer"
 BIN_CMD="/bin/ipw"
 

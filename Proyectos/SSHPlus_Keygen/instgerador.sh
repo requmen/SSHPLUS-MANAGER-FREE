@@ -18,7 +18,7 @@ rm $HOME/instgerador.sh* > /dev/null 2>&1; exit 0
 
 SCRIPT_DIR="/etc/sshplus-server/_script_\$"
 CRZ_DIR="$SCRIPT_DIR/crz"
-GITHUB_RAW="https://raw.githubusercontent.com/requmen/SSHPLUS-MANAGER-FREE/master/Proyectos/SSHPlus_Keygen/Modulos"
+GITHUB_RAW="https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Proyectos/SSHPlus_Keygen/Modulos"
 
 cd $HOME
 fun_bar () {
@@ -79,7 +79,7 @@ fun_dirconfig() {
 
 fun_downser() {
     cd "$CRZ_DIR"
-    wget -O sshplus-v38.zip "https://github.com/requmen/SSHPLUS-MANAGER-FREE/raw/master/Proyectos/SSHPlus_Keygen/Modulos/sshplus-v38.zip"
+    wget -O sshplus-v38.zip "https://github.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/raw/master/Proyectos/SSHPlus_Keygen/Modulos/sshplus-v38.zip"
     unzip -o sshplus-v38.zip
     rm -f sshplus-v38.zip
 }
