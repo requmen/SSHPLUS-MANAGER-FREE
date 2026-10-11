@@ -151,9 +151,6 @@ _draw_frame_bottom () {
 _draw_rule () {
    printf '\033[38;5;39m%s\033[0m\n' "${_frame_fill//─/━}"
 }
-_draw_section_label () {
-   printf '\n  \033[38;5;45m◆\033[0m  \033[1;38;5;43m%s\033[0m\n' "$1"
-}
 _draw_banner () {
    local _text="$1" _room _left _right _left_fill _right_fill _prefix='/// ' _suffix=' ///'
    _room=$((_frame_inner - ${#_text} - ${#_prefix} - ${#_suffix} - 2))
@@ -221,7 +218,7 @@ _draw_three_card_headings () {
    for _i in 0 1 2; do
       _heading="${_headings[$_i]}"
       _pad=$((_card_width - 2 - ${#_heading}))
-      printf '\033[38;5;39m│\033[0m%*s\033[38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
+      printf '\033[38;5;39m│\033[0m%*s\033[1;38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
       [[ $_i -lt 2 ]] && printf '  '
    done
    printf '\n'
@@ -256,24 +253,49 @@ _draw_update_row () {
    (( _pad < 0 )) && _pad=0
    printf '\033[38;5;39m│\033[0m  \033[38;5;203m[\033[0m\033[38;5;45m04\033[0m\033[38;5;203m]\033[0m  %b  \033[38;5;221m[!]\033[0m \033[38;5;43mBETİĞİ GÜNCELLE\033[0m%*s\033[38;5;39m│\033[0m\n' "$var01" "$_pad" ''
 }
+_draw_user_cell () {
+   local _icon="$1" _label="$2" _value="$3" _color="$4" _width="$5" _used _pad _left _right
+   _used=$((${#_icon} + 1 + ${#_label} + 1 + ${#_value}))
+   _pad=$((_width - _used))
+   (( _pad < 0 )) && _pad=0
+   _left=$((_pad / 2))
+   _right=$((_pad - _left))
+   printf '%*s\033[%sm%s %s\033[0m \033[1;37m%s\033[0m%*s' "$_left" '' "$_color" "$_icon" "$_label" "$_value" "$_right" ''
+}
 _draw_user_stats () {
-   local _online="${_onlin// /}" _expired="${_userexp// /}" _visible _pad
-   _visible=" ● Çevrimiçi: $_online  │  ◷ Süresi dolan: $_expired  │  ▮ Toplam: $_tuser "
+   local _online="${_onlin// /}" _expired="${_userexp// /}" _visible _pad _left _right _cell1 _cell2 _cell3
    _draw_frame_top
-   _pad=$((_frame_inner - ${#_visible}))
-   if (( _pad >= 0 )); then
-      printf '\033[38;5;39m│\033[0m \033[38;5;43m● Çevrimiçi:\033[0m \033[1;37m%s\033[0m  \033[38;5;39m│\033[0m  \033[38;5;203m◷ Süresi dolan:\033[0m \033[1;37m%s\033[0m  \033[38;5;39m│\033[0m  \033[38;5;221m▮ Toplam:\033[0m \033[1;37m%s\033[0m %*s\033[38;5;39m│\033[0m\n' "$_online" "$_expired" "$_tuser" "$_pad" ''
+   if (( _term_cols >= 94 )); then
+      _cell1=$(((_frame_inner - 2) / 3))
+      _cell2=$_cell1
+      _cell3=$((_frame_inner - 2 - _cell1 - _cell2))
+      printf '\033[38;5;39m│\033[0m'
+      _draw_user_cell '♟' 'Çevrimiçi:' "$_online" '38;5;43' "$_cell1"
+      printf '\033[38;5;39m│\033[0m'
+      _draw_user_cell '◷' 'Süresi dolan:' "$_expired" '38;5;203' "$_cell2"
+      printf '\033[38;5;39m│\033[0m'
+      _draw_user_cell '▂▅▇' 'Toplam:' "$_tuser" '38;5;221' "$_cell3"
+      printf '\033[38;5;39m│\033[0m\n'
    else
-      for _user_line in "Çevrimiçi: $_online" "Süresi dolan: $_expired" "Toplam: $_tuser"; do
-         _pad=$((_frame_inner - ${#_user_line} - 1))
-         printf '\033[38;5;39m│\033[0m  \033[38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_user_line" "$_pad" ''
-      done
+      _visible="♟ Çevrimiçi: $_online  │  ◷ Süresi dolan: $_expired  │  ▂▅▇ Toplam: $_tuser"
+      _pad=$((_frame_inner - ${#_visible}))
+      if (( _pad >= 0 )); then
+         _left=$((_pad / 2))
+         _right=$((_pad - _left))
+         printf '\033[38;5;39m│\033[0m%*s\033[38;5;43m♟ Çevrimiçi:\033[0m \033[1;37m%s\033[0m  \033[38;5;39m│\033[0m  \033[38;5;203m◷ Süresi dolan:\033[0m \033[1;37m%s\033[0m  \033[38;5;39m│\033[0m  \033[38;5;221m▂▅▇ Toplam:\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_left" '' "$_online" "$_expired" "$_tuser" "$_right" ''
+      else
+         for _user_line in "♟ Çevrimiçi: $_online" "◷ Süresi dolan: $_expired" "▂▅▇ Toplam: $_tuser"; do
+            _pad=$((_frame_inner - ${#_user_line} - 2))
+            (( _pad < 0 )) && _pad=0
+            printf '\033[38;5;39m│\033[0m  %s%*s\033[38;5;39m│\033[0m\n' "$_user_line" "$_pad" ''
+         done
+      fi
    fi
    _draw_frame_bottom
 }
 _title='SSHPLUS MANAGER'
 _draw_banner "$_title"
-_draw_section_label 'SİSTEM DURUMU'
+printf '\n'
 if (( _term_cols >= 94 )); then
    _card_width=$(((_term_cols - 4) / 3))
    _draw_three_card_border
@@ -287,7 +309,7 @@ else
    _draw_full_stat_card '▤ RAM' 'Toplam:' "${_ram// /}" 'RAM kullanımı:' "${_usor// /}"
    _draw_full_stat_card '▦ İŞLEMCİ' 'Çekirdek:' "$_core" 'CPU kullanımı:' "${_usop// /}"
 fi
-_draw_section_label 'KULLANICI DURUMU'
+printf '\n'
 _draw_user_stats
 if [[ ! -e /tmp/att ]]; then
     var01='\033[1;37m•'
@@ -295,12 +317,19 @@ else
     printf '\n  \033[38;5;221m[!] YENİ BİR GÜNCELLEME VAR\033[0m\n'
     var01='\033[1;32m!'
 fi
-_draw_section_label 'ANA MENÜ'
+printf '\n'
 _draw_frame_top
 _draw_frame_blank () {
    printf '\033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
 }
-_draw_frame_blank
+_draw_menu_inset_rule () {
+   local _rule_width=$((_frame_inner - 2)) _rule
+   (( _rule_width < 1 )) && _rule_width=1
+   _rule=$(printf '%*s' "$_rule_width" '')
+   _rule=${_rule// /─}
+   printf '\033[38;5;39m│\033[0m \033[38;5;39m%s\033[0m \033[38;5;39m│\033[0m\n' "$_rule"
+}
+_draw_menu_inset_rule
 _draw_menu_row '01' 'KULLANICILARI YÖNET' '38;5;221'
 _draw_menu_row '02' 'ARAÇLARI YÖNET' '38;5;221'
 _draw_menu_row '03' 'SİSTEMİ YÖNET' '38;5;221'
@@ -313,7 +342,7 @@ _draw_menu_row '00' 'MENÜDEN ÇIK' '38;5;221' $'  \033[38;5;43m<<<\033[0m'
 _draw_frame_blank
 _draw_frame_bottom
 _draw_rule
-printf '\n\033[38;5;43mNE YAPMAK İSTİYORSUNUZ\033[0m \033[38;5;221m?\033[0m\033[38;5;203m?\033[0m : '
+printf '\n\033[38;5;43mNE YAPMAK İSTİYORSUN\033[0m \033[38;5;203m?\033[0m\033[38;5;203m?\033[0m \033[1;37m:\033[0m '
 read x
 
 case "$x" in 
