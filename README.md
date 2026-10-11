@@ -15,6 +15,11 @@ Linux sunucularda SSH ve VPN bağlantılarını yönetmek için kullanılan bir 
 
 Eksik bağımlılıklar kurulum sırasında otomatik olarak yüklenir.
 
+Python uyumluluğu için gerekli paket:
+```bash
+sudo apt install python-is-python3 -y
+```
+
 ```bash
 apt-get update -y;
 apt-get upgrade -y;
