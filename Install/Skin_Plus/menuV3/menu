@@ -135,32 +135,32 @@ clear
 _term_cols=$(tput cols 2>/dev/null)
 [[ "$_term_cols" =~ ^[0-9]+$ ]] || _term_cols=56
 (( _term_cols < 42 )) && _term_cols=42
-_frame_inner=$((_term_cols - 6))
+_frame_inner=$((_term_cols - 4))
 _frame_fill=$(printf '%*s' "$_frame_inner" '')
 _frame_fill=${_frame_fill// /─}
 _draw_frame_top () {
-   printf '  \033[38;5;39m╭%s╮\033[0m\n' "$_frame_fill"
+   printf ' \033[38;5;39m╭%s╮\033[0m\n' "$_frame_fill"
 }
 _draw_frame_separator () {
-   printf '  \033[38;5;39m├%s┤\033[0m\n' "$_frame_fill"
+   printf ' \033[38;5;39m├%s┤\033[0m\n' "$_frame_fill"
 }
 _draw_frame_bottom () {
-   printf '  \033[38;5;39m╰%s╯\033[0m\n' "$_frame_fill"
+   printf ' \033[38;5;39m╰%s╯\033[0m\n' "$_frame_fill"
 }
 _draw_rule () {
    local _rule_fill
    _rule_fill=$(printf '%*s' "$((_frame_inner + 2))" '')
    _rule_fill=${_rule_fill// /━}
-   printf '  \033[38;5;39m%s\033[0m\n' "$_rule_fill"
+   printf ' \033[38;5;39m%s\033[0m\n' "$_rule_fill"
 }
 _draw_section_heading () {
-   local _text="$1" _prefix='─ ' _fill _used _line_width=$((_frame_inner + 2))
+   local _text="$1" _prefix='──  ' _fill _used _line_width=$((_frame_inner + 2))
    _used=$((${#_prefix} + ${#_text} + 1))
    _fill=$((_line_width - _used))
    (( _fill < 1 )) && _fill=1
    _fill=$(printf '%*s' "$_fill" '')
    _fill=${_fill// /─}
-   printf '  \033[38;5;45m%s\033[1;38;5;45m%s\033[38;5;45m %s\033[0m\n' "$_prefix" "$_text" "$_fill"
+   printf ' \033[38;5;45m%s\033[1;38;5;45m%s\033[38;5;45m %s\033[0m\n' "$_prefix" "$_text" "$_fill"
 }
 _draw_banner () {
    local _text="$1" _room _left _right
@@ -168,84 +168,89 @@ _draw_banner () {
    (( _room < 0 )) && _room=0
    _left=$((_room / 2))
    _right=$((_room - _left))
-   printf '  \033[38;5;45m╭%s╮\033[0m\n' "${_frame_fill//─/━}"
-   printf '  \033[38;5;45m│%*s \033[1;38;5;45m%s\033[38;5;45m %*s│\033[0m\n' "$_left" '' "$_text" "$_right" ''
-   printf '  \033[38;5;45m╰%s╯\033[0m\n' "${_frame_fill//─/━}"
+   printf ' \033[38;5;45m╭%s╮\033[0m\n' "${_frame_fill//─/━}"
+   printf ' \033[38;5;45m│%*s \033[1;38;5;45m%s\033[38;5;45m %*s│\033[0m\n' "$_left" '' "$_text" "$_right" ''
+   printf ' \033[38;5;45m╰%s╯\033[0m\n' "${_frame_fill//─/━}"
 }
 _draw_full_stat_card () {
    local _heading="$1" _label1="$2" _value1="$3" _label2="$4" _value2="$5"
    local _pad _used
    _draw_frame_top
    _pad=$((_frame_inner - ${#_heading}))
-   printf '  \033[38;5;39m│\033[0m%*s\033[38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
+   printf ' \033[38;5;39m│\033[0m%*s\033[38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
    _draw_frame_separator
    _used=$((1 + ${#_label1} + 1 + ${#_value1}))
    _pad=$((_frame_inner - _used))
    (( _pad < 0 )) && _pad=0
-   printf '  \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label1" "$_value1" "$_pad" ''
+   printf ' \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label1" "$_value1" "$_pad" ''
    _used=$((1 + ${#_label2} + 1 + ${#_value2}))
    _pad=$((_frame_inner - _used))
    (( _pad < 0 )) && _pad=0
-   printf '  \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label2" "$_value2" "$_pad" ''
+   printf ' \033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "$_label2" "$_value2" "$_pad" ''
    _draw_frame_bottom
 }
 _draw_three_card_border () {
-   local _cell_fill _i
-   _cell_fill=$(printf '%*s' "$((_card_width - 2))" '')
-   _cell_fill=${_cell_fill// /─}
-   printf '  '
+   local _cell_fill _i _width
+   printf ' '
    for _i in 1 2 3; do
+      _width=$((_card_width + (_i > 1 ? 1 : 0)))
+      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
+      _cell_fill=${_cell_fill// /─}
       printf '\033[38;5;39m╭%s╮\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf '  '
+      [[ $_i -lt 3 ]] && printf ' '
    done
    printf '\n'
 }
 _draw_three_card_bottom () {
-   local _cell_fill _i
-   _cell_fill=$(printf '%*s' "$((_card_width - 2))" '')
-   _cell_fill=${_cell_fill// /─}
-   printf '  '
+   local _cell_fill _i _width
+   printf ' '
    for _i in 1 2 3; do
+      _width=$((_card_width + (_i > 1 ? 1 : 0)))
+      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
+      _cell_fill=${_cell_fill// /─}
       printf '\033[38;5;39m╰%s╯\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf '  '
+      [[ $_i -lt 3 ]] && printf ' '
    done
    printf '\n'
 }
 _draw_three_card_separator () {
-   local _cell_fill _i
-   _cell_fill=$(printf '%*s' "$((_card_width - 2))" '')
-   _cell_fill=${_cell_fill// /─}
-   printf '  '
+   local _cell_fill _i _width
+   printf ' '
    for _i in 1 2 3; do
+      _width=$((_card_width + (_i > 1 ? 1 : 0)))
+      _cell_fill=$(printf '%*s' "$((_width - 2))" '')
+      _cell_fill=${_cell_fill// /─}
       printf '\033[38;5;39m├%s┤\033[0m' "$_cell_fill"
-      [[ $_i -lt 3 ]] && printf '  '
+      [[ $_i -lt 3 ]] && printf ' '
    done
    printf '\n'
 }
 _draw_three_card_headings () {
-   local _i _heading _pad
+   local _i _heading _pad _width
    local -a _headings=("■ SİSTEM" "≡ RAM" "■ İŞLEMCİ")
-   printf '  '
+   printf ' '
    for _i in 0 1 2; do
       _heading="${_headings[$_i]}"
-      _pad=$((_card_width - 2 - ${#_heading}))
+      _width=$((_card_width + (_i > 0 ? 1 : 0)))
+      _pad=$((_width - 2 - ${#_heading}))
       printf '\033[38;5;39m│\033[0m%*s\033[1;38;5;43m%s\033[0m%*s\033[38;5;39m│\033[0m' "$((_pad / 2))" '' "$_heading" "$((_pad - _pad / 2))" ''
-      [[ $_i -lt 2 ]] && printf '  '
+      [[ $_i -lt 2 ]] && printf ' '
    done
    printf '\n'
 }
 _draw_three_card_row () {
-   local _i _label _value _used _pad
+   local _i _label _value _used _pad _width
    local -a _labels=("$1" "$3" "$5") _values=("$2" "$4" "$6")
-   printf '  '
+   printf ' '
    for _i in 0 1 2; do
       _label="${_labels[$_i]}"
       _value="${_values[$_i]}"
       _used=$((1 + ${#_label} + 1 + ${#_value}))
-      _pad=$((_card_width - 2 - _used))
+      _width=$((_card_width + (_i > 0 ? 1 : 0)))
+      _pad=$((_width - 2 - _used))
       (( _pad < 0 )) && _pad=0
       printf '\033[38;5;39m│\033[0m \033[38;5;203m%s\033[0m \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m' "$_label" "$_value" "$_pad" ''
-      [[ $_i -lt 2 ]] && printf '  '
+      [[ $_i -lt 2 ]] && printf ' '
    done
    printf '\n'
 }
@@ -255,7 +260,7 @@ _draw_menu_row () {
    _plain="  [$_number]  •  $_label$_suffix_plain"
    _pad=$((_frame_inner - ${#_plain}))
    (( _pad < 0 )) && _pad=0
-   printf '  \033[38;5;39m│\033[0m  \033[38;5;203m[\033[0m\033[38;5;45m%s\033[0m\033[38;5;203m]\033[0m  \033[1;37m•\033[0m  \033[%sm%s\033[0m%b\033[0m%*s\033[38;5;39m│\033[0m\n' "$_number" "$_label_color" "$_label" "$_suffix" "$_pad" ''
+   printf ' \033[38;5;39m│\033[0m  \033[38;5;203m[\033[0m\033[38;5;45m%s\033[0m\033[38;5;203m]\033[0m  \033[1;37m•\033[0m  \033[%sm%s\033[0m%b\033[0m%*s\033[38;5;39m│\033[0m\n' "$_number" "$_label_color" "$_label" "$_suffix" "$_pad" ''
 }
 _draw_update_row () {
    local _mark_plain _plain _pad
@@ -263,7 +268,7 @@ _draw_update_row () {
    _plain="  [04]  $_mark_plain  [!] BETİĞİ GÜNCELLE"
    _pad=$((_frame_inner - ${#_plain}))
    (( _pad < 0 )) && _pad=0
-   printf '  \033[38;5;39m│\033[0m  \033[38;5;203m[\033[0m\033[38;5;45m04\033[0m\033[38;5;203m]\033[0m  %b  \033[38;5;221m[!]\033[0m \033[38;5;43mBETİĞİ GÜNCELLE\033[0m%*s\033[38;5;39m│\033[0m\n' "$var01" "$_pad" ''
+   printf ' \033[38;5;39m│\033[0m  \033[38;5;203m[\033[0m\033[38;5;45m04\033[0m\033[38;5;203m]\033[0m  %b  \033[38;5;221m[!]\033[0m \033[38;5;43mBETİĞİ GÜNCELLE\033[0m%*s\033[38;5;39m│\033[0m\n' "$var01" "$_pad" ''
 }
 _draw_user_cell () {
    local _icon="$1" _label="$2" _value="$3" _color="$4" _width="$5" _used _pad
@@ -280,10 +285,10 @@ _draw_user_stats () {
    local -a _colors=('38;5;43' '38;5;203' '38;5;221')
    _draw_frame_top
    if (( _term_cols >= 94 )); then
-      _cell1=$(((_frame_inner - 2) / 3))
-      _cell2=$_cell1
+      _cell1=19
+      _cell2=22
       _cell3=$((_frame_inner - 2 - _cell1 - _cell2))
-      printf '  \033[38;5;39m│\033[0m'
+      printf ' \033[38;5;39m│\033[0m'
       _draw_user_cell '♟' 'Çevrimiçi:' "$_online" '38;5;43' "$_cell1"
       printf '\033[38;5;39m│\033[0m'
       _draw_user_cell '◷' 'Süresi dolan:' "$_expired" '38;5;203' "$_cell2"
@@ -298,7 +303,7 @@ _draw_user_stats () {
          _pad=$((_frame_inner - 2 - _label_width - 1 - ${#_value}))
          (( _label_pad < 0 )) && _label_pad=0
          (( _pad < 0 )) && _pad=0
-         printf '  \033[38;5;39m│\033[0m  \033[%sm%s\033[0m%*s \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "${_colors[$_i]}" "$_label" "$_label_pad" '' "$_value" "$_pad" ''
+         printf ' \033[38;5;39m│\033[0m  \033[%sm%s\033[0m%*s \033[1;37m%s\033[0m%*s\033[38;5;39m│\033[0m\n' "${_colors[$_i]}" "$_label" "$_label_pad" '' "$_value" "$_pad" ''
       done
    fi
    _draw_frame_bottom
@@ -334,7 +339,7 @@ printf '\n'
 _draw_section_heading 'ANA MENÜ'
 _draw_frame_top
 _draw_frame_blank () {
-   printf '  \033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
+   printf ' \033[38;5;39m│\033[0m%*s\033[38;5;39m│\033[0m\n' "$_frame_inner" ''
 }
 _draw_frame_blank
 _draw_menu_row '01' 'KULLANICILARI YÖNET' '38;5;221'
